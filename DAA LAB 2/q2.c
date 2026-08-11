@@ -47,15 +47,26 @@ void threeWayMerge(int arr[], int l, int m1, int m2, int r) {
 }
 
 void modifiedMergeSort(int arr[], int l, int r) {
-    if (l < r) {
-        int third = (r - l + 1) / 3;
-        int m1 = l + third - 1;
-        int m2 = l + 2 * third - 1;
-        modifiedMergeSort(arr, l, m1);
-        modifiedMergeSort(arr, m1 + 1, m2);
-        modifiedMergeSort(arr, m2 + 1, r);
-        threeWayMerge(arr, l, m1, m2, r);
+    int size = r - l + 1;
+    if (size < 2) return;
+    if (size == 2) {
+        if (arr[l] > arr[r]) {
+            int t = arr[l]; arr[l] = arr[r]; arr[r] = t;
+        }
+        return;
     }
+
+    int third = size / 3;
+    int m1 = l + third - 1;
+    int m2 = l + 2 * third - 1;
+    if (m1 < l) m1 = l;
+    if (m2 < m1 + 1) m2 = m1 + 1;
+
+    modifiedMergeSort(arr, l, m1);
+    modifiedMergeSort(arr, m1 + 1, m2);
+    modifiedMergeSort(arr, m2 + 1, r);
+    threeWayMerge(arr, l, m1, m2, r);
+    return;
 }
 
 int main() {
