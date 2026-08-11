@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 
 int compare_ints(const void *a, const void *b) {
     int ia = *(const int*)a;
@@ -40,37 +41,41 @@ int* pairwiseMerge(int **arrays, int k, int n) {
     int *sizes = malloc(k * sizeof(int));
     for (int i = 0; i < k; i++) sizes[i] = n;
 
-    while (k > 1) {
-        int newK = (k + 1) / 2;
+    int currK = k;
+    int **currArrays = malloc(k * sizeof(int*));
+    for (int i = 0; i < k; i++) currArrays[i] = arrays[i];
+    int *currSizes = sizes;
+
+    while (currK > 1) {
+        int newK = (currK + 1) / 2;
         int **newArrays = malloc(newK * sizeof(int*));
         int *newSizes = malloc(newK * sizeof(int));
         int idx = 0;
 
         for (int i = 0; i < newK; i++) {
-            if (idx + 1 < k) {
-                newSizes[i] = sizes[idx] + sizes[idx + 1];
+            if (idx + 1 < currK) {
+                newSizes[i] = currSizes[idx] + currSizes[idx + 1];
                 newArrays[i] = malloc(newSizes[i] * sizeof(int));
-                mergeArrays(arrays[idx], sizes[idx], arrays[idx + 1], sizes[idx + 1], newArrays[i]);
-                free(arrays[idx]);
-                free(arrays[idx + 1]);
+                mergeArrays(currArrays[idx], currSizes[idx], currArrays[idx + 1], currSizes[idx + 1], newArrays[i]);
                 idx += 2;
             } else {
-                newArrays[i] = arrays[idx];
-                newSizes[i] = sizes[idx];
+                newSizes[i] = currSizes[idx];
+                newArrays[i] = malloc(newSizes[i] * sizeof(int));
+                memcpy(newArrays[i], currArrays[idx], newSizes[i] * sizeof(int));
                 idx += 1;
             }
         }
 
-        free(arrays);
-        free(sizes);
-        arrays = newArrays;
-        sizes = newSizes;
-        k = newK;
+        free(currArrays);
+        free(currSizes);
+        currArrays = newArrays;
+        currSizes = newSizes;
+        currK = newK;
     }
 
-    int *result = arrays[0];
-    free(arrays);
-    free(sizes);
+    int *result = currArrays[0];
+    free(currArrays);
+    free(currSizes);
     return result;
 }
 
@@ -93,6 +98,9 @@ int main() {
     int *res2 = pairwiseMerge(arrays, k, n);
     end = clock();
     printf("Pairwise Merge Time: %.6f sec\n", (double)(end-start)/CLOCKS_PER_SEC);
+    /* free original input arrays */
+    for (int i = 0; i < k; i++) free(arrays[i]);
+    free(arrays);
 
     free(res1);
     free(res2);
