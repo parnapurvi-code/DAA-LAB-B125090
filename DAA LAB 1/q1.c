@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 typedef enum {
     CONSTANT,
@@ -15,6 +16,13 @@ typedef struct {
     GrowthType type;
 } Function;
 
+// Comparison function for qsort
+int compareFunctions(const void *a, const void *b) {
+    const Function *fa = (const Function *)a;
+    const Function *fb = (const Function *)b;
+    return (fa->type - fb->type);
+}
+
 int main(void) {
     Function funcs[] = {
         {"1", CONSTANT},
@@ -29,10 +37,16 @@ int main(void) {
         {"2n^3", CUBIC}
     };
 
+    int n = sizeof(funcs) / sizeof(funcs[0]);
+
+    // Sort the array by growth type
+    qsort(funcs, n, sizeof(Function), compareFunctions);
+
     printf("Increasing order of growth for sufficiently large n:\n");
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < n; i++) {
         printf("%d. %s\n", i + 1, funcs[i].name);
     }
 
     return 0;
 }
+
